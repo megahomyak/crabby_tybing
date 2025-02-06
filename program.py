@@ -11,13 +11,13 @@ for k, v in re.findall(r"(?:^|\n)(\d+)\s+(.+)(?=$|\n)", open("README").read()):
         node = node.setdefault(int(c), {})
     key_code = {
         "Backspace": "\b",
-        "Tab": "\t",
+        "Tab": "Tab", # Specifically for xdotool
         "New line": "\n",
         "Space": " ",
-        "Arrow up": "up",
-        "Arrow down": "down",
-        "Arrow left": "left",
-        "Arrow right": "right",
+        "Arrow up": "Up",
+        "Arrow down": "Down",
+        "Arrow left": "Left",
+        "Arrow right": "Right",
     }.get(v, v)
     node["key"] = SN(name=v, code=key_code)
 
