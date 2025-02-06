@@ -10,8 +10,10 @@ def distance(landmark1, landmark2):
 CAMERA_INDEX = 0
 FINGER_PROXIMITY_THRESHOLD = 0.1
 
+MIN_HAND_MODEL_COMPLEXITY = 0
+clack_existence = [False, False]
 video_capture = cv2.VideoCapture(CAMERA_INDEX)
-with hands.Hands(max_num_hands=2) as hands_recognizer:
+with hands.Hands(max_num_hands=2, model_complexity=MIN_HAND_MODEL_COMPLEXITY) as hands_recognizer:
     while True:
         is_success, frame = video_capture.read()
         assert is_success
@@ -31,14 +33,11 @@ with hands.Hands(max_num_hands=2) as hands_recognizer:
                     hand[hands.HandLandmark.RING_FINGER_TIP],
                     hand[hands.HandLandmark.PINKY_TIP],
                 ]
-                print(max(
+                hand_is_clacked = max(
                     distance(finger_tip, other_finger_tip)
                     for finger_tip in finger_tips
                     for other_finger_tip in finger_tips
-                ))
-                if max(
-                    distance(finger_tip, other_finger_tip)
-                    for finger_tip in finger_tips
-                    for other_finger_tip in finger_tips
-                ) < FINGER_PROXIMITY_THRESHOLD:
+                ) < FINGER_PROXIMITY_THRESHOLD
+                if hand_is_clacked and not clack_existence[bit]:
                     print(bit)
+                clack_existence[bit] = hand_is_clacked
