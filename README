@@ -1,5 +1,8 @@
 This thingy makes you use your CLAWS to type text on your computer. By default uses the table below to make up characters. Move your fingers together like a claw to clack. Both of your hands must be visible to your web camera
 
+Installation: ./install.sh
+Execution: ./run.sh
+
 +----------------------------+
 | Python 3.12 is recommended |
 +----------------------------+
