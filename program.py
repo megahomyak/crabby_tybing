@@ -5,7 +5,8 @@ from types import SimpleNamespace as SN
 import ait
 
 keys = {}
-for k, v in re.findall(r"(\d{7})\s+(\S+)", open("README").read()):
+for k, v in re.findall(r"\n(\d{7})\s+(.+)\n", open("README").read()):
+    print(v)
     node = keys
     for c in k:
         node = node.setdefault(int(c), {})
