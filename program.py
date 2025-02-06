@@ -2,18 +2,24 @@ import re
 from mediapipe.python.solutions import hands
 import cv2
 
-keycodes = dict(re.findall(r"(\d{7})\s+(\S+)", open("README").read()))
+keycodes = {}
+for k, v in re.findall(r"(\d{7})\s+(\S+)", open("README").read()):
+    node = keycodes
+    for c in k:
+        node = node.setdefault(int(c), {})
+    node["keycode"] = v
 
 def distance(landmark1, landmark2):
     return ((landmark1.x - landmark2.x) ** 2 + (landmark1.y - landmark2.y) ** 2) ** 0.5
 
 CAMERA_INDEX = 0
-FINGER_PROXIMITY_THRESHOLD = 0.1
+FINGER_PROXIMITY_THRESHOLD = 0.05
 
-MIN_HAND_MODEL_COMPLEXITY = 0
-clack_existence = [False, False]
 video_capture = cv2.VideoCapture(CAMERA_INDEX)
+MIN_HAND_MODEL_COMPLEXITY = 0
 with hands.Hands(max_num_hands=2, model_complexity=MIN_HAND_MODEL_COMPLEXITY) as hands_recognizer:
+    clack_existence = [False, False]
+    node = keycodes
     while True:
         is_success, frame = video_capture.read()
         assert is_success
@@ -39,5 +45,21 @@ with hands.Hands(max_num_hands=2, model_complexity=MIN_HAND_MODEL_COMPLEXITY) as
                     for other_finger_tip in finger_tips
                 ) < FINGER_PROXIMITY_THRESHOLD
                 if hand_is_clacked and not clack_existence[bit]:
-                    print(bit)
+                    print(bit, end="", flush=True)
+                    message = None
+                    try:
+                        node = node[bit]
+                    except KeyError:
+                        message = " NOT FOUND"
+                    else:
+                        try:
+                            keycode = node["keycode"]
+                        except KeyError:
+                            pass
+                        else:
+                            message = f" {keycode}"
+                            # Exec key code
+                    if message is not None:
+                        print(message)
+                        node = keycodes
                 clack_existence[bit] = hand_is_clacked
