@@ -1,1 +1,2 @@
 mediapipe==0.10.21
+autoit==0.2.6

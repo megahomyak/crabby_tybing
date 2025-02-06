@@ -1,13 +1,25 @@
 import re
 from mediapipe.python.solutions import hands
 import cv2
+from types import SimpleNamespace as SN
+import ait
 
-keycodes = {}
+keys = {}
 for k, v in re.findall(r"(\d{7})\s+(\S+)", open("README").read()):
-    node = keycodes
+    node = keys
     for c in k:
         node = node.setdefault(int(c), {})
-    node["keycode"] = v
+    key_code = {
+        "Backspace": "\b",
+        "Tab": "\t",
+        "New line": "\n",
+        "Space": " ",
+        "Arrow up": "up",
+        "Arrow down": "down",
+        "Arrow left": "left",
+        "Arrow right": "right",
+    }.get(v, v)
+    node["key"] = SN(name=v, code=key_code)
 
 def distance(landmark1, landmark2):
     return ((landmark1.x - landmark2.x) ** 2 + (landmark1.y - landmark2.y) ** 2) ** 0.5
@@ -17,9 +29,9 @@ FINGER_PROXIMITY_THRESHOLD = 0.1
 
 video_capture = cv2.VideoCapture(CAMERA_INDEX)
 MIN_HAND_MODEL_COMPLEXITY = 0
-with hands.Hands(max_num_hands=2, model_complexity=MIN_HAND_MODEL_COMPLEXITY) as hands_recognizer:
+with hands.Hands(max_num_hands=2, model_complexity=MIN_HAND_MODEL_COMPLEXITY, static_image_mode=False) as hands_recognizer:
     clack_existence = [False, False]
-    node = keycodes
+    node = keys
     while True:
         is_success, frame = video_capture.read()
         assert is_success
@@ -61,12 +73,12 @@ with hands.Hands(max_num_hands=2, model_complexity=MIN_HAND_MODEL_COMPLEXITY) as
                             end_message = "NOT FOUND"
                         else:
                             try:
-                                keycode = node["keycode"]
+                                key = node["key"]
                             except KeyError:
                                 pass
                             else:
-                                end_message = keycode
-                                # Exec key code
+                                end_message = key.name
+                                ait.press(key.code)
                         if end_message is not None:
                             print(f" {end_message}")
-                            node = keycodes
+                            node = keys

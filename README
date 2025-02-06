@@ -1,4 +1,4 @@
-This thingy makes you use your CLAWS to type text on your computer. By default uses the table below to make up characters
+This thingy makes you use your CLAWS to type text on your computer. By default uses the table below to make up characters. Move your fingers together like a claw to clack. Both of your hands must be visible to your web camera
 
 +----------------------------+
 | Python 3.12 is recommended |
@@ -10,7 +10,7 @@ Right hand clack = 1
 Key_code Key_name
 0000000 Backspace
 0000001 Tab
-0000010 \n
+0000010 New line
 0000011 Space
 0000100 !
 0000101 "
