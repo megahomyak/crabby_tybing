@@ -6,7 +6,6 @@ import ait
 
 keys = {}
 for k, v in re.findall(r"(?:^|\n)(\d+)\s+(.+)(?=$|\n)", open("README").read()):
-    print(v)
     node = keys
     for c in k:
         node = node.setdefault(int(c), {})
@@ -21,7 +20,6 @@ for k, v in re.findall(r"(?:^|\n)(\d+)\s+(.+)(?=$|\n)", open("README").read()):
         "Arrow right": "right",
     }.get(v, v)
     node["key"] = SN(name=v, code=key_code)
-exit()
 
 def distance(landmark1, landmark2):
     return ((landmark1.x - landmark2.x) ** 2 + (landmark1.y - landmark2.y) ** 2) ** 0.5
