@@ -13,7 +13,7 @@ def distance(landmark1, landmark2):
     return ((landmark1.x - landmark2.x) ** 2 + (landmark1.y - landmark2.y) ** 2) ** 0.5
 
 CAMERA_INDEX = 0
-FINGER_PROXIMITY_THRESHOLD = 0.05
+FINGER_PROXIMITY_THRESHOLD = 0.1
 
 video_capture = cv2.VideoCapture(CAMERA_INDEX)
 MIN_HAND_MODEL_COMPLEXITY = 0
@@ -32,34 +32,41 @@ with hands.Hands(max_num_hands=2, model_complexity=MIN_HAND_MODEL_COMPLEXITY) as
                 [0, 1],
             ):
                 hand = hand.landmark
+                thumb_tip = hand[hands.HandLandmark.THUMB_TIP]
+                index_finger_tip = hand[hands.HandLandmark.INDEX_FINGER_TIP]
                 finger_tips = [
-                    hand[hands.HandLandmark.THUMB_TIP],
-                    hand[hands.HandLandmark.INDEX_FINGER_TIP],
+                    thumb_tip,
+                    index_finger_tip,
                     hand[hands.HandLandmark.MIDDLE_FINGER_TIP],
                     hand[hands.HandLandmark.RING_FINGER_TIP],
                     hand[hands.HandLandmark.PINKY_TIP],
                 ]
-                hand_is_clacked = max(
+                is_clack_on = max(
                     distance(finger_tip, other_finger_tip)
                     for finger_tip in finger_tips
                     for other_finger_tip in finger_tips
                 ) < FINGER_PROXIMITY_THRESHOLD
-                if hand_is_clacked and not clack_existence[bit]:
-                    print(bit, end="", flush=True)
-                    message = None
-                    try:
-                        node = node[bit]
-                    except KeyError:
-                        message = " NOT FOUND"
-                    else:
+                is_clack_off = distance(thumb_tip, index_finger_tip) > FINGER_PROXIMITY_THRESHOLD
+                if clack_existence[bit]:
+                    if is_clack_off:
+                        clack_existence[bit] = False
+                else:
+                    if is_clack_on:
+                        clack_existence[bit] = True
+                        print(bit, end="", flush=True)
+                        end_message = None
                         try:
-                            keycode = node["keycode"]
+                            node = node[bit]
                         except KeyError:
-                            pass
+                            end_message = "NOT FOUND"
                         else:
-                            message = f" {keycode}"
-                            # Exec key code
-                    if message is not None:
-                        print(message)
-                        node = keycodes
-                clack_existence[bit] = hand_is_clacked
+                            try:
+                                keycode = node["keycode"]
+                            except KeyError:
+                                pass
+                            else:
+                                end_message = keycode
+                                # Exec key code
+                        if end_message is not None:
+                            print(f" {end_message}")
+                            node = keycodes
